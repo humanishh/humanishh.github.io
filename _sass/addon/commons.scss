@@ -29,6 +29,7 @@ html {
 }
 
 body {
+  background: black;
   background: url('Bkg.png');
   background-size: 100% 100%;
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
@@ -704,7 +705,6 @@ $btn-mb: 0.5rem;
   overflow-y: auto;
   width: $sidebar-width;
   z-index: 99;
-  background: transparent;
   border-right: none;
 
   /* Hide scrollbar for Chrome, Safari and Opera */
