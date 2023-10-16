@@ -25,11 +25,12 @@ html {
     }
   }
 
-  font-size: 16px;
+  font-size: 15px;
 }
 
 body {
-  background: var(--main-bg);
+  background: url('Bkg.png');
+  background-size: 100% 100%;
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
     env(safe-area-inset-bottom) env(safe-area-inset-left);
   color: var(--text-color);
@@ -73,11 +74,52 @@ img {
   height: auto;
   transition: all 0.35s ease-in-out;
 
-  .blur & {
-    $blur: 20px;
+  &[data-src] {
+    &[data-lqip='true'] {
+      &.lazyload,
+      &.lazyloading {
+        -webkit-filter: blur(20px);
+        filter: blur(20px);
+      }
+    }
 
-    -webkit-filter: blur($blur);
-    filter: blur($blur);
+    &:not([data-lqip='true']) {
+      &.lazyload,
+      &.lazyloading {
+        background: var(--img-bg);
+      }
+
+      &.lazyloaded {
+        -webkit-animation: fade-in 0.35s ease-in;
+        animation: fade-in 0.35s ease-in;
+      }
+    }
+
+    &.shadow {
+      -webkit-filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.08));
+      filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.08));
+      box-shadow: none !important; /* cover the Bootstrap 4.6.1 styles */
+    }
+
+    @extend %img-caption;
+  }
+
+  @-webkit-keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 }
 
@@ -132,11 +174,13 @@ kbd {
 }
 
 footer {
-  background-color: var(--main-bg);
+  font-size: 1.0rem;
+  background-color: transparent;
   height: $footer-height;
-  border-top: 1px solid var(--main-border-color);
+  border-top: none;
+  border-bottom: none;
 
-  @extend %text-xs;
+  @extend %text-color;
 
   a {
     @extend %text-highlight;
@@ -147,6 +191,7 @@ footer {
   }
 
   p {
+    line-height: 1.75;
     text-align: center;
     margin-bottom: 0;
   }
@@ -230,8 +275,6 @@ i {
       margin-bottom: 0.3rem;
     }
 
-    @extend %sup-fn-target;
-
     > p {
       margin-left: 0.25em;
       margin-top: 0;
@@ -246,11 +289,8 @@ i {
     @include pl-pr(2px);
 
     border-bottom-style: none !important;
+    transition: background-color 1.5s ease-in-out;
   }
-}
-
-sup {
-  @extend %sup-fn-target;
 }
 
 .reversefootnote {
@@ -306,27 +346,6 @@ sup {
 
 /* --- post --- */
 
-.preview-img {
-  aspect-ratio: 40 / 21;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-
-  @extend %rounded;
-
-  &:not(.no-bg) {
-    background: var(--img-bg);
-  }
-
-  img {
-    height: 100%;
-    -o-object-fit: cover;
-    object-fit: cover;
-
-    @extend %rounded;
-  }
-}
-
 .post-preview {
   @extend %rounded;
 
@@ -355,6 +374,7 @@ sup {
 
 main {
   line-height: 1.75;
+  min-height: calc(100vh - $topbar-height - $footer-height);
 
   h1 {
     margin-top: 2rem;
@@ -362,6 +382,7 @@ main {
   }
 
   p {
+    > img[data-src],
     > a.popup {
       &:not(.normal):not(.left):not(.right) {
         @include align-center;
@@ -379,7 +400,7 @@ main {
 }
 
 .post-meta {
-  @extend %text-sm;
+  font-size: 0.85rem;
 
   a {
     &:not([class]):hover {
@@ -515,15 +536,14 @@ main {
     background: var(--shimmer-bg);
     height: 100%;
     width: 100%;
-    -webkit-animation: shimmer 1.3s infinite;
-    animation: shimmer 1.3s infinite;
+    -webkit-animation: shimmer 1s infinite;
+    animation: shimmer 1s infinite;
   }
 
   @-webkit-keyframes shimmer {
     0% {
       transform: translateX(-100%);
     }
-
     100% {
       transform: translateX(100%);
     }
@@ -533,7 +553,6 @@ main {
     0% {
       transform: translateX(-100%);
     }
-
     100% {
       transform: translateX(100%);
     }
@@ -672,12 +691,12 @@ mjx-container {
 /* --- sidebar layout --- */
 
 $sidebar-display: 'sidebar-display';
+$btn-gap: 0.8rem; // for the bottom icons
 $btn-border-width: 3px;
 $btn-mb: 0.5rem;
 
 #sidebar {
   @include pl-pr(0);
-
   position: fixed;
   top: 0;
   left: 0;
@@ -685,8 +704,8 @@ $btn-mb: 0.5rem;
   overflow-y: auto;
   width: $sidebar-width;
   z-index: 99;
-  background: var(--sidebar-bg);
-  border-right: 1px solid var(--sidebar-border-color);
+  background: transparent;
+  border-right: none;
 
   /* Hide scrollbar for Chrome, Safari and Opera */
   &::-webkit-scrollbar {
@@ -709,8 +728,8 @@ $btn-mb: 0.5rem;
 
   #avatar {
     display: block;
-    width: 7rem;
-    height: 7rem;
+    width: 14.5rem;
+    height: 14.5rem;
     overflow: hidden;
     box-shadow: var(--avatar-border-color) 0 0 0 2px;
     transform: translateZ(0); /* fixed the zoom in Safari */
@@ -728,19 +747,19 @@ $btn-mb: 0.5rem;
     @include mt-mb(2.5rem);
     @extend %clickable-transition;
 
-    padding-left: 2.5rem;
-    padding-right: 1.25rem;
-    width: 100%;
+    padding-left: 1.0rem;
+    padding-right: 1.0rem;
+    width: 107%;
   }
 
   .site-title {
     font-family: inherit;
-    font-weight: 900;
-    font-size: 1.75rem;
-    line-height: 1.2;
-    letter-spacing: 0.25px;
-    margin-top: 1.25rem;
-    margin-bottom: 0.5rem;
+    font-weight: 1000;
+    font-size: 1.50rem;
+    line-height: 1.5;
+    letter-spacing: 0.5px;
+    margin-top: 1.00rem;
+    margin-bottom: 1.00rem;
 
     a {
       @extend %clickable-transition;
@@ -751,7 +770,7 @@ $btn-mb: 0.5rem;
   }
 
   .site-subtitle {
-    font-size: 95%;
+    font-size: 120%;
     color: var(--site-subtitle-color);
     margin-top: 0.25rem;
     word-spacing: 1px;
@@ -812,15 +831,13 @@ $btn-mb: 0.5rem;
   }
 
   .sidebar-bottom {
-    padding-left: 2rem;
+    padding-left: 1rem;
     padding-right: 1rem;
-    margin-bottom: 1.5rem;
-
-    $btn-size: 1.75rem;
+    margin-bottom: 1rem;
 
     %button {
-      width: $btn-size;
-      height: $btn-size;
+      width: 1.75rem;
+      height: 1.75rem;
       margin-bottom: $btn-mb; // multi line gap
       border-radius: 50%;
       color: var(--sidebar-btn-color);
@@ -842,12 +859,12 @@ $btn-mb: 0.5rem;
       @extend %clickable-transition;
 
       &:not(:last-child) {
-        margin-right: $sb-btn-gap;
+        margin-right: $btn-gap;
       }
     }
 
     i {
-      line-height: $btn-size;
+      line-height: 1.75rem;
     }
 
     .mode-toggle {
@@ -861,7 +878,7 @@ $btn-mb: 0.5rem;
 
     .icon-border {
       @extend %no-cursor;
-      @include ml-mr(calc(($sb-btn-gap - $btn-border-width) / 2));
+      @include ml-mr(calc(($btn-gap - $btn-border-width) / 2));
 
       background-color: var(--sidebar-btn-color);
       content: '';
@@ -902,7 +919,9 @@ $btn-mb: 0.5rem;
 
 #topbar-wrapper {
   height: $topbar-height;
-  background-color: var(--topbar-bg);
+  border-top: none;
+  border-bottom: none;
+  background-color: transparent;
 }
 
 #topbar {
@@ -1006,7 +1025,6 @@ search {
   padding: 0.18rem 0.3rem;
   color: var(--text-color);
   height: auto;
-
   &:focus {
     box-shadow: none;
   }
@@ -1105,28 +1123,18 @@ search {
   }
 }
 
-/* --- basic wrappers --- */
-
+/* --- main wrapper --- */
 #main-wrapper {
-  position: relative;
-
+  position: center;
+  background-size: 100% 100%;
+  background-position: center;  
   @include pl-pr(0);
-
-  > .container {
-    min-height: 100vh;
-  }
 }
 
 #topbar-wrapper.row,
 #main-wrapper > .container > .row,
 #search-result-wrapper > .row {
   @include ml-mr(0);
-}
-
-#tail-wrapper {
-  > :not(script) {
-    margin-top: 3rem;
-  }
 }
 
 /* --- button back-to-top --- */
@@ -1178,7 +1186,7 @@ search {
   .toast-header {
     background: none;
     border-bottom: none;
-    color: inherit;
+    background-color: transparent;
   }
 
   .toast-body {
@@ -1264,11 +1272,16 @@ search {
     }
   }
 
+  main {
+    min-height: calc(100vh - $topbar-height - $footer-height-large);
+  }
+
   footer {
     @include slide;
 
     height: $footer-height-large;
     padding: 1.5rem 0;
+    background-color: transparent
   }
 
   [#{$sidebar-display}] {
@@ -1277,7 +1290,7 @@ search {
     }
 
     #main-wrapper {
-      transform: translateX($sidebar-width);
+      transform: translateX(#{$sidebar-width});
     }
 
     #back-to-top {
@@ -1288,8 +1301,8 @@ search {
   #sidebar {
     @include slide;
 
-    transform: translateX(-$sidebar-width); /* hide */
-    -webkit-transform: translateX(-$sidebar-width);
+    transform: translateX(-#{$sidebar-width}); /* hide */
+    -webkit-transform: translateX(-#{$sidebar-width});
   }
 
   #main-wrapper {
@@ -1464,7 +1477,7 @@ search {
 
 @media all and (min-width: 1400px) {
   #back-to-top {
-    right: calc((100vw - $sidebar-width - 1140px) / 2 + 3rem);
+    right: calc((100vw - #{$sidebar-width} - 1140px) / 2 + 3rem);
   }
 }
 
@@ -1479,16 +1492,17 @@ search {
     left: $sidebar-width-large;
   }
 
+
   search {
     margin-right: calc(
-      $main-content-max-width / 4 - $search-max-width - 0.75rem
+      #{$main-content-max-width} * 0.25 - #{$search-max-width} - 0.75rem
     );
   }
 
   #main-wrapper > .container {
-    max-width: $main-content-max-width;
-    padding-left: 1.75rem !important;
-    padding-right: 1.75rem !important;
+    max-width: 2000;
+    padding-left: 0.0rem !important;
+    padding-right: 0.0rem !important;
   }
 
   main.col-12,
@@ -1498,12 +1512,14 @@ search {
 
   #back-to-top {
     right: calc(
-      (100vw - $sidebar-width-large - $main-content-max-width) / 2 + 2rem
+      (100vw - #{$sidebar-width-large} - #{$main-content-max-width}) / 2 + 2rem
     );
   }
 
   #sidebar {
     width: $sidebar-width-large;
+
+    $icon-gap: 1rem; // for the bottom icons
 
     .profile-wrapper {
       margin-top: 3.5rem;
@@ -1522,11 +1538,11 @@ search {
       margin-bottom: 1.75rem;
 
       a:not(:last-child) {
-        margin-right: $sb-btn-gap-lg;
+        margin-right: $icon-gap;
       }
 
       .icon-border {
-        @include ml-mr(calc(($sb-btn-gap-lg - $btn-border-width) / 2));
+        @include ml-mr(calc(($icon-gap - $btn-border-width) / 2));
       }
     }
   }
